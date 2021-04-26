@@ -23,7 +23,7 @@
         <c:if test="${loggedin == true}" >
             <p>Welcome <c:out value="${username}"/></p>
             <p><a href="Logout">Logout</a></p>
-            <p><a href="changepassword.html"</a></p>
+            <p><a href="changepassword.html">Change Password</a></p>
         </c:if>
 
     </body>

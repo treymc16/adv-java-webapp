@@ -6,11 +6,9 @@
 package WebUtil;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.sql.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
 /**
  *
@@ -27,21 +25,35 @@ public class ChangePassword extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
+         HttpSession session = request.getSession();
+        String oldpassword = request.getParameter("oldpassword");
+        String newpassword = request.getParameter("newpassword");
+        String username = (String) session.getAttribute("username");
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rset = null;
         try {
-            /* TODO output your page here
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ChangePassword</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ChangePassword at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-            */
-        } finally { 
-            out.close();
+            conn = JdbcManager.getConnection();
+            stmt = conn.createStatement();
+            String sqlcmd = String.format("select * from users where username='%s' and password='%s'", username, oldpassword);
+            rset = stmt.executeQuery(sqlcmd);
+            if(rset.next()) {
+                sqlcmd = String.format("update users set password='%s' where username='%s'", newpassword, username);
+                stmt.executeUpdate(sqlcmd);
+            }
+            else {
+                session.setAttribute("loggedin", false);
+                session.setAttribute("username", null);
+            }
+            RequestDispatcher dispatcher = request.getRequestDispatcher("homepage.jsp");
+            dispatcher.forward(request, response);
+        }
+        catch (Exception e){
+           e.printStackTrace();
+        } finally {
+            JdbcManager.close(conn);
+            JdbcManager.close(stmt);
+            JdbcManager.close(rset);
         }
     } 
 

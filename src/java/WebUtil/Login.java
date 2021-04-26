@@ -24,7 +24,7 @@ public class Login extends HttpServlet {
         try {
             conn = JdbcManager.getConnection();
             stmt = conn.createStatement();
-            String sqlcmd = String.format("select * from users where username like '%%%s%%' and password like '%%%s%%'", username, password);
+            String sqlcmd = String.format("select * from users where username='%s' and password='%s'", username, password);
             rset = stmt.executeQuery(sqlcmd);
             if(rset.next()) {
                 session.setAttribute("loggedin", true);
